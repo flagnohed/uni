@@ -1,0 +1,239 @@
+#include <iostream>
+#include <string>
+#include <set>
+#include <forward_list>
+#include <fstream>
+#include <map>
+#include <list>
+#include <algorithm>
+using namespace std;
+
+const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
+
+set<string> getDict(){
+    fstream ifs;
+    ifs.open("dictionary.txt");
+    string line;
+    set<string> words;
+    while (!ifs.eof()){
+        getline(ifs, line);
+        words.insert(line);
+    }
+    return words;
+}
+
+int askWordLength(){
+    cout << "Choose length of the secret word: ";
+    int wordLen;
+    cin >> wordLen;
+    return wordLen;
+
+}
+
+set<string> getValidWords(const set<string> dict, const int& wordLength){
+    //int wordlength = askWordLength();
+    set<string> validWords;
+    for (string word : dict){
+        if (word.length() == wordLength){
+            validWords.insert(word);
+        }
+    }
+    if (validWords.size() == 0){
+        int newWordLength = askWordLength();
+        getValidWords(dict, newWordLength);
+    }
+    return validWords;
+}
+
+int askNumberOfGuesses(){
+    cout << "Please enter the amount of guesses you want: ";
+    int guesses;
+    cin >> guesses;
+    return guesses;
+}
+
+bool wantsVisibleWords(){
+    cout << "Do you want the remaining words in wordlist to be visible? (y/n): ";
+    char answer;
+    cin >> answer;
+    if (answer == 'y'){
+        return true;
+    }
+    if (answer == 'n'){
+        return false;
+    }
+    else {
+        cout << "Didn't understand that." << endl;
+        wantsVisibleWords();
+    }
+
+    return false;
+}
+
+void printGameInfo(const int& remainingGuesses, const string& secretWord,
+                   const set<string> currentWordList,
+                   const bool& wantsVisible){
+    //printa alla dessa, och om wantsVisibleWords() == true så printa remainingWords också.
+    cout << "----------" << endl;
+    cout << "Remaining guesses: " << remainingGuesses << endl;
+    cout << "Guessed characters: " << endl;
+
+    cout << secretWord << endl;
+    if (wantsVisible){
+        cout << "han vill ha orden" << endl;
+    }
+}
+
+string updateSecretWord(const char& guess, string& secretWord){
+    string newSecretWord;
+    // kolla om bokstaven har gissats
+    //uppdatera ordfamiljer och kolla om det är fel ord eller sånt
+    return newSecretWord;
+}
+
+
+map<string, set<string>> makeWordFamilies(const char& guess, const set<string> currentWordList){
+    // nånting sånt här? men om vi gör så kan vi kanske inte ta alla ord från ordlistan som matchar den familjen?
+    map<string,set<string>> families;
+    set<string> possibleWords;
+    for (string word: currentWordList){
+        string tempWord = word;
+        for(int i = 0; i < word.length(); i++){
+            if(word[i] == guess){
+                tempWord[i] = word[i];
+
+            }else{
+                tempWord[i] = '-';
+            }
+
+        }
+        cout << tempWord << word <<endl;
+    // denna knasar till det troligtvis, kolla om verkligen ska ha map eller set
+        if(families.find(tempWord) != families.end()){
+            set<string> wordClass;
+            wordClass.insert(word);
+            families.insert({tempWord,wordClass});
+        }else{
+            possibleWords.insert(word);
+            families.insert({tempWord,possibleWords});
+        }
+    }
+    return families;
+}
+
+
+bool isInAlphabet(const char& letter){
+    int found = ALPHABET.find(letter);
+    if (found < ALPHABET.length()){
+        return true;
+    }
+    return false;
+}
+
+void checkGuess(const char& guess, set<string> currentWordList){
+    // kolla om bokstaven finns i ordet eller inte
+    map<string, set<string>> families = makeWordFamilies(guess, currentWordList);
+
+
+
+}
+
+void askForGuess(list<char>& guessedChars, set<string> currentWordList){
+    cout << "Guess a character: ";
+    char guess;
+    cin >> guess;
+    list<char>::iterator it;
+    it = find(begin(guessedChars), end(guessedChars),guess);
+    if (!isInAlphabet(guess) || it != guessedChars.end()){
+        cout << "False input, try again please." << endl;
+        askForGuess(guessedChars, currentWordList);
+    } else {
+        checkGuess(guess, currentWordList);
+    }
+}
+
+
+
+
+
+
+
+set<string> updateWordlist(map<string,set<string>>& families){
+    set<string> newWordlist;
+    int size = 0;
+    for(auto& fam: families){
+        set<string> firstClass = fam.second;
+        if(firstClass.size() > size){
+            size = firstClass.size();
+            newWordlist = firstClass;
+        }
+    }
+
+    // ta den största ordfamiljen och ta bort övriga ur wordlist (eller ta bara med de orden i den största ordfamiljen)
+    return newWordlist;
+}
+
+void revealWord(const set<string>& wordList){
+    // välj och printa ett ord ur ordlistan, den här körs om användaren har förlorat.
+}
+
+void askToPlayAgain(){
+    cout << "Do you want to play again? (y/n): ";
+    char answer;
+    cin >> answer;
+    if (answer == 'y'){
+        // starta om spelet
+    } else if (answer == 'n'){
+        // avsluta
+    } else {
+        cout << "Sorry, didn't understand that." << endl;
+        askToPlayAgain();
+    }
+
+}
+
+int getWordLength(const int& length){
+    return length;
+}
+
+string buildFirstSecretWord(const int& length){
+    string secret;
+    for (int i = 0; i < length; i++){
+        secret += '-';
+    }
+    return secret;
+}
+
+int main() {
+    cout << "Welcome to Hangman." << endl;
+    forward_list<char> guesses;
+    set<string> dict = getDict();
+    int wordLength = askWordLength();
+    set<string> validWords = getValidWords(dict, wordLength); // ger alla ord med rätt längd.
+
+
+    int remainingGuesses = askNumberOfGuesses();
+    forward_list<string> guessedChars;
+    bool wantsVisible = wantsVisibleWords();
+    string secretWord = buildFirstSecretWord(wordLength);
+
+    printGameInfo(remainingGuesses, secretWord, validWords, wantsVisible);
+    char guess = 'z';
+    map<string,set<string>> fam = makeWordFamilies(guess,validWords);
+    for(auto& key: fam){
+        cout << "nyckel: " << key.first << key.second.size() << endl;
+
+    }
+    set<string> ny = updateWordlist(fam);
+    cout << "storlek:" << ny.size() << endl;
+//    for(string word: ny){
+//        cout << "ord: " << word << endl;
+//    }
+    //askForGuess(guesses);
+    //cout << secretWord << endl;
+    //askToPlayAgain();
+
+
+
+    return 0;
+}

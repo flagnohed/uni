@@ -1,0 +1,9 @@
+User Manual for lab2 proxy:
+
+This proxy was built and tested with Mozilla Firefox and a manual proxy has to be added
+with following parameters: 
+    * HTTP-proxy: 127.0.0.1
+    * Port: 1234
+
+After that run httpProxy.py and open the tests websites in your Firefox browser. 
+Make sure that Firefox's cache is cleared before entering the website.
